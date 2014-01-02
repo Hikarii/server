@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,8 +51,7 @@ void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recv_data)
         return;
 
     // Stop the npc if moving
-    if (!pCreature->IsStopped())
-        pCreature->StopMoving();
+    pCreature->StopMoving();
 
     BattleGroundTypeId bgTypeId = sBattleGroundMgr.GetBattleMasterBG(pCreature->GetEntry());
 
@@ -181,8 +180,8 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recv_data)
             // store entry point coords (same as leader entry point)
             member->SetBattleGroundEntryPoint(_player);
 
-            // send status packet (in queue)
             WorldPacket data;
+            // send status packet (in queue)
             sBattleGroundMgr.BuildBattleGroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_QUEUE, avgTime, 0, ginfo->arenaType);
             member->GetSession()->SendPacket(&data);
             sBattleGroundMgr.BuildGroupJoinedBattlegroundPacket(&data, bgTypeId);

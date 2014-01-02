@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,13 +44,13 @@ class DBCStorage
             fieldCount = dbc.GetCols();
 
             // load raw non-string data
-            m_dataTable = (T*)dbc.AutoProduceData(fmt,nCount,(char**&)indexTable);
+            m_dataTable = (T*)dbc.AutoProduceData(fmt, nCount, (char**&)indexTable);
 
             // load strings from dbc data
-            m_stringPoolList.push_back(dbc.AutoProduceStrings(fmt,(char*)m_dataTable));
+            m_stringPoolList.push_back(dbc.AutoProduceStrings(fmt, (char*)m_dataTable));
 
             // error in dbc file at loading if NULL
-            return indexTable!=NULL;
+            return indexTable != NULL;
         }
 
         bool LoadStringsFrom(char const* fn)
@@ -65,7 +65,7 @@ class DBCStorage
                 return false;
 
             // load strings from another locale dbc data
-            m_stringPoolList.push_back(dbc.AutoProduceStrings(fmt,(char*)m_dataTable));
+            m_stringPoolList.push_back(dbc.AutoProduceStrings(fmt, (char*)m_dataTable));
 
             return true;
         }

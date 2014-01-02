@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ enum
     GO_SILITHYST_GEYSER                 = 181598,       // spawn on the map by default
 
     // spells
-    //SPELL_SILITHYST_OBJECT            = 29518,        // unknown, related to the GO
+    // SPELL_SILITHYST_OBJECT            = 29518,        // unknown, related to the GO
     SPELL_SILITHYST                     = 29519,        // buff received when you are carrying a silithyst
     SPELL_TRACES_OF_SILITHYST           = 29534,        // individual buff received when successfully delivered a silithyst
     SPELL_CENARION_FAVOR                = 30754,        // zone buff received when a team gathers 200 silithyst

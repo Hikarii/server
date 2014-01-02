@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -4266,7 +4266,6 @@ bool ChatHandler::HandleAuctionItemCommand(char* args)
         MANGOS_ASSERT(newItem);
 
         auctionHouse->AddAuction(auctionHouseEntry, newItem, etime, price, buyout);
-
     }
     while (item_count);
 
@@ -6165,7 +6164,6 @@ bool ChatHandler::ShowPlayerListHelper(QueryResult* result, uint32* limit, bool 
                 PSendSysMessage(LANG_CHARACTERS_LIST_LINE_CONSOLE, guid, name.c_str(), race_name, class_name, level);
             else
                 PSendSysMessage(LANG_CHARACTERS_LIST_LINE_CHAT, guid, name.c_str(), name.c_str(), race_name, class_name, level);
-
         }
         while (result->NextRow());
 

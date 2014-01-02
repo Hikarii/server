@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,7 +117,7 @@ static void SendTrainerSpellHelper(WorldPacket& data, TrainerSpell const* tSpell
 
     SpellChainNode const* chain_node = sSpellMgr.GetSpellChainNode(tSpell->spell);
 
-    data << uint32(tSpell->spell);
+    data << uint32(tSpell->spell);                      // learned spell (or cast-spell in profession case)
     data << uint8(state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
     data << uint32(floor(tSpell->spellCost * fDiscountMod));
 
@@ -291,7 +291,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recv_data)
     data << uint32(0x016A);                                 // index from SpellVisualKit.dbc
     SendPacket(&data);
 
-    // learn explicitly
+    // learn explicitly to prevent lost money at lags, learning spell will be only show spell animation
     _player->learnSpell(trainer_spell->spell, false);
 
     data.Initialize(SMSG_TRAINER_BUY_SUCCEEDED, 12);
@@ -318,8 +318,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recv_data)
     if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
-    if (!pCreature->IsStopped())
-        pCreature->StopMoving();
+    pCreature->StopMoving();
 
     if (pCreature->isSpiritGuide())
         pCreature->SendAreaSpiritHealerQueryOpcode(_player);

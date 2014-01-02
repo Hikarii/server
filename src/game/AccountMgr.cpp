@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,26 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     }
 
     if (!LoginDatabase.PExecute("INSERT INTO account(username,sha_pass_hash,joindate) VALUES('%s','%s',NOW())", username.c_str(), CalculateShaPassHash(username, password).c_str()))
+        return AOR_DB_INTERNAL_ERROR;                       // unexpected error
+    LoginDatabase.Execute("INSERT INTO realmcharacters (realmid, acctid, numchars) SELECT realmlist.id, account.id, 0 FROM realmlist,account LEFT JOIN realmcharacters ON acctid=account.id WHERE acctid IS NULL");
+
+    return AOR_OK;                                          // everything's fine
+}
+
+AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, uint32 expansion)
+{
+    if (utf8length(username) > MAX_ACCOUNT_STR)
+        return AOR_NAME_TOO_LONG;                           // username's too long
+
+    normalizeString(username);
+    normalizeString(password);
+
+    if (GetId(username))
+    {
+        return AOR_NAME_ALREDY_EXIST;                       // username does already exist
+    }
+
+    if (!LoginDatabase.PExecute("INSERT INTO account(username,sha_pass_hash,joindate,expansion) VALUES('%s','%s',NOW(),'%u')", username.c_str(), CalculateShaPassHash(username, password).c_str(), expansion))
         return AOR_DB_INTERNAL_ERROR;                       // unexpected error
     LoginDatabase.Execute("INSERT INTO realmcharacters (realmid, acctid, numchars) SELECT realmlist.id, account.id, 0 FROM realmlist,account LEFT JOIN realmcharacters ON acctid=account.id WHERE acctid IS NULL");
 
@@ -220,7 +240,7 @@ bool AccountMgr::CheckPassword(uint32 accid, std::string passwd)
 
 bool AccountMgr::normalizeString(std::string& utf8str)
 {
-    wchar_t wstr_buf[MAX_ACCOUNT_STR+1];
+    wchar_t wstr_buf[MAX_ACCOUNT_STR + 1];
 
     size_t wstr_len = MAX_ACCOUNT_STR;
     if (!Utf8toWStr(utf8str, wstr_buf, wstr_len))

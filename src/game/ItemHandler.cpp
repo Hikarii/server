@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -293,6 +293,7 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket& recv_data)
         std::string name = pProto->Name1;
         std::string description = pProto->Description;
         sObjectMgr.GetItemLocaleStrings(pProto->ItemId, loc_idx, &name, &description);
+
 
         // guess size
         WorldPacket data(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 600);
@@ -712,8 +713,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorguid)
         GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    if (!pCreature->IsStopped())
-        pCreature->StopMoving();
+    pCreature->StopMoving();
 
     VendorItemData const* vItems = pCreature->GetVendorItems();
     VendorItemData const* tItems = pCreature->GetVendorTemplateItems();
@@ -1274,7 +1274,6 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
                         }
                     }
                 }
-
             }
         }
 

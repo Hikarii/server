@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1697,7 +1697,6 @@ void Unit::CalculateMeleeDamage(Unit* pVictim, uint32 damage, CalcDamageInfo* da
         }
         if (damageInfo->resist)
             damageInfo->HitInfo |= HITINFO_RESIST;
-
     }
     else // Umpossible get negative result but....
         damageInfo->damage = 0;
@@ -1725,6 +1724,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     if (damageInfo->blocked_amount && damageInfo->TargetState != VICTIMSTATE_BLOCKS)
         pVictim->HandleEmoteCommand(EMOTE_ONESHOT_PARRYSHIELD);
 
+    // This seems to reduce the victims time until next attack if your attack was parried
     if (damageInfo->TargetState == VICTIMSTATE_PARRY)
     {
         // Get attack timers
@@ -3745,7 +3745,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder* holder)
                 switch (aurNameReal)
                 {
                         // DoT/HoT/etc
-                    case SPELL_AURA_DUMMY:                  // allow stack
+                    case SPELL_AURA_DUMMY:                  // allow stack (HoTs checked later)
                     case SPELL_AURA_PERIODIC_DAMAGE:
                     case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
                     case SPELL_AURA_PERIODIC_LEECH:
@@ -4502,21 +4502,17 @@ void Unit::RemoveAllAurasOnDeath()
 void Unit::RemoveAllAurasOnEvade()
 {
     // used when evading to remove all auras except some special auras
-    // Linked and flying auras should not be removed on evade
+    // Fly should not be removed on evade - neither should linked auras
     for (SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end();)
     {
-        // Note: for the moment this part of the function is used as a placeholder to keep in sync with master branch
-        /*SpellEntry const* proto = iter->second->GetSpellProto();
-        if (!IsSpellHaveAura(proto, SPELL_AURA_CONTROL_VEHICLE))
+        SpellEntry const* proto = iter->second->GetSpellProto();
+        if (!IsSpellHaveAura(proto, SPELL_AURA_FLY))
         {
             RemoveSpellAuraHolder(iter->second, AURA_REMOVE_BY_DEFAULT);
             iter = m_spellAuraHolders.begin();
         }
         else
-            ++iter;*/
-
-        RemoveSpellAuraHolder(iter->second, AURA_REMOVE_BY_DEFAULT);
-        iter = m_spellAuraHolders.begin();
+            ++iter;
     }
 }
 
@@ -5845,6 +5841,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* pVictim, SpellEntry const* spellProto, u
             return owner->SpellDamageBonusDone(pVictim, spellProto, pdamage, damagetype);
     }
 
+    uint32 creatureTypeMask = pVictim->GetCreatureTypeMask();
     float DoneTotalMod = 1.0f;
     int32 DoneTotal = 0;
 
@@ -5865,29 +5862,26 @@ uint32 Unit::SpellDamageBonusDone(Unit* pVictim, SpellEntry const* spellProto, u
         }
     }
 
-    uint32 creatureTypeMask = pVictim->GetCreatureTypeMask();
     // Add flat bonus from spell damage versus
     DoneTotal += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS, creatureTypeMask);
-    AuraList const& mDamageDoneVersus = GetAurasByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS);
-    for (AuraList::const_iterator i = mDamageDoneVersus.begin(); i != mDamageDoneVersus.end(); ++i)
-        if (creatureTypeMask & uint32((*i)->GetModifier()->m_miscvalue))
-            DoneTotalMod *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
 
-    AuraList const& mDamageDoneCreature = GetAurasByType(SPELL_AURA_MOD_DAMAGE_DONE_CREATURE);
-    for (AuraList::const_iterator i = mDamageDoneCreature.begin(); i != mDamageDoneCreature.end(); ++i)
-    {
-        if (creatureTypeMask & uint32((*i)->GetModifier()->m_miscvalue))
-            DoneTotalMod += ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
-    }
+    // Add pct bonus from spell damage versus
+    DoneTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS, creatureTypeMask);
+
+    // Add flat bonus from spell damage creature
+    DoneTotal += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_CREATURE, creatureTypeMask);
 
     // done scripted mod (take it from owner)
     Unit* owner = GetOwner();
-    if (!owner) owner = this;
+    if (!owner)
+        owner = this;
+
     AuraList const& mOverrideClassScript = owner->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
     for (AuraList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
     {
         if (!(*i)->isAffectedOnSpell(spellProto))
             continue;
+            
         switch ((*i)->GetModifier()->m_miscvalue)
         {
                 // Molten Fury
@@ -6070,7 +6064,6 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
             if ((*i)->GetModifier()->m_miscvalue & schoolMask)
                 DoneAdvertisedBenefit += int32(GetTotalAttackPowerValue(BASE_ATTACK) * (*i)->GetModifier()->m_amount / 100.0f);
         }
-
     }
     return DoneAdvertisedBenefit;
 }
@@ -6337,7 +6330,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* pCaster, SpellEntry const* spellProto,
     // Taken fixed damage bonus auras
     int32 TakenAdvertisedBenefit = SpellBaseHealingBonusTaken(GetSpellSchoolMask(spellProto));
 
-    // Blessing of Light dummy affects healing taken from Holy Light and Flash of Light
+    // Blessing of Light dummy effects healing taken from Holy Light and Flash of Light
     if (spellProto->SpellFamilyName == SPELLFAMILY_PALADIN && (spellProto->SpellFamilyFlags & UI64LIT(0x00000000C0000000)))
     {
         AuraList const& auraDummy = GetAurasByType(SPELL_AURA_DUMMY);
@@ -6355,7 +6348,8 @@ uint32 Unit::SpellHealingBonusTaken(Unit* pCaster, SpellEntry const* spellProto,
     // apply benefit affected by spell power implicit coeffs and spell level penalties
     TakenTotal = SpellBonusWithCoeffs(spellProto, TakenTotal, TakenAdvertisedBenefit, 0, damagetype, false);
 
-    // Healing Way dummy affects healing taken from Healing Wave
+    // Taken mods
+    // Healing Wave cast
     if (spellProto->SpellFamilyName == SPELLFAMILY_SHAMAN && (spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000040)))
     {
         AuraList const& auraDummy = GetAurasByType(SPELL_AURA_DUMMY);
@@ -7014,7 +7008,7 @@ int32 Unit::ModifyHealth(int32 dVal)
         SetHealth(val);
         gain = val - curHealth;
     }
-    else if (curHealth != maxHealth)
+    else
     {
         SetHealth(maxHealth);
         gain = maxHealth - curHealth;
@@ -7046,7 +7040,7 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
         SetPower(power, val);
         gain = val - curPower;
     }
-    else if (curPower != maxPower)
+    else
     {
         SetPower(power, maxPower);
         gain = maxPower - curPower;
@@ -7124,11 +7118,11 @@ bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, boo
         if (u->GetTypeId() != TYPEID_PLAYER || !((Player*)u)->isGameMaster())
             return false;
 
-    // Visible units, always are visible for all units, except for units under invisibility
+    // Visible units, always are visible for all units, except for units under invisibility and phases
     if (m_Visibility == VISIBILITY_ON && u->m_invisibilityMask == 0)
         return true;
 
-    // GMs see any players, not higher GMs and all units
+    // GMs see any players, not higher GMs and all units in any phase
     if (u->GetTypeId() == TYPEID_PLAYER && ((Player*)u)->isGameMaster())
     {
         if (GetTypeId() == TYPEID_PLAYER)
@@ -7495,6 +7489,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate, bool forced)
     if (m_speed_rate[mtype] != rate)
     {
         m_speed_rate[mtype] = rate;
+
         propagateSpeedChange();
 
         const uint16 SetSpeed2Opc_table[MAX_MOVE_TYPE][2] =
@@ -7521,7 +7516,6 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate, bool forced)
             if (mtype == MOVE_RUN)
                 data << uint8(0);                           // new 2.1.0
             data << float(GetSpeed(mtype));
-
             ((Player*)this)->GetSession()->SendPacket(&data);
         }
 
@@ -7556,9 +7550,9 @@ void Unit::SetDeathState(DeathState s)
         RemoveGuardians();
         UnsummonAllTotems();
 
+        StopMoving();
         i_motionMaster.Clear(false, true);
         i_motionMaster.MoveIdle();
-        StopMoving();
 
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
         ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
@@ -7662,7 +7656,8 @@ void Unit::TauntApply(Unit* taunter)
     // Only attack taunter if this is a valid target
     if (!hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_DIED) && !IsSecondChoiceTarget(taunter, true))
     {
-        SetInFront(taunter);
+        if (GetTargetGuid() || !target)
+            SetInFront(taunter);
 
         if (((Creature*)this)->AI())
             ((Creature*)this)->AI()->AttackStart(taunter);
@@ -7709,7 +7704,8 @@ void Unit::TauntFadeOut(Unit* taunter)
 
     if (target && target != taunter)
     {
-        SetInFront(target);
+        if (GetTargetGuid())
+            SetInFront(target);
 
         if (((Creature*)this)->AI())
             ((Creature*)this)->AI()->AttackStart(target);
@@ -7824,8 +7820,8 @@ bool Unit::SelectHostileTarget()
                     // next iteration we will select next possible target
                     m_HostileRefManager.deleteReference(target);
                     m_ThreatManager.modifyThreatPercent(target, -101);
-
-                    _removeAttacker(target);
+                    // remove target from current attacker, do not exit combat settings
+                    AttackStop(true);
                 }
 
                 return false;
@@ -7894,7 +7890,7 @@ int32 Unit::CalculateSpellDamage(Unit const* target, SpellEntry const* spellProt
 
     switch (randomPoints)
     {
-        case 0:
+        case 0:                                             // not used
         case 1: basePoints += baseDice; break;              // range 1..1
         default:
         {
@@ -9047,8 +9043,11 @@ void Unit::SendPetAIReaction()
 
 ///----------End of Pet responses methods----------
 
-void Unit::StopMoving()
+void Unit::StopMoving(bool forceSendStop /*=false*/)
 {
+    if (IsStopped() && !forceSendStop)
+        return;
+
     clearUnitState(UNIT_STAT_MOVING);
 
     // not need send any packets if not in world
@@ -9058,6 +9057,21 @@ void Unit::StopMoving()
     Movement::MoveSplineInit init(*this);
     init.SetFacing(GetOrientation());
     init.Launch();
+}
+
+void Unit::InterruptMoving(bool forceSendStop /*=false*/)
+{
+    bool isMoving = false;
+
+    if (!movespline->Finalized())
+    {
+        Movement::Location loc = movespline->ComputePosition();
+        movespline->_Interrupt();
+        Relocate(loc.x, loc.y, loc.z, loc.orientation);
+        isMoving = true;
+    }
+
+    StopMoving(forceSendStop || isMoving);
 }
 
 void Unit::SetFeared(bool apply, ObjectGuid casterGuid, uint32 spellID, uint32 time)
@@ -9189,7 +9203,6 @@ void Unit::SetFeignDeath(bool apply, ObjectGuid casterGuid, uint32 /*spellID*/)
             else
                 GetMotionMaster()->Initialize();
         }
-
     }
 }
 

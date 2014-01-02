@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +80,6 @@ class BattleGroundWGScore : public BattleGroundScore
         uint32 FlagCaptures;
         uint32 FlagReturns;
 };
-
 
 enum BG_WS_Events
 {

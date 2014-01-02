@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@ uint32 ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) con
 void ReputationMgr::SendForceReactions()
 {
     WorldPacket data;
-    data.Initialize(SMSG_SET_FORCED_REACTIONS, 4 + m_forcedReactions.size()*(4 + 4));
+    data.Initialize(SMSG_SET_FORCED_REACTIONS, 4 + m_forcedReactions.size() * (4 + 4));
     data << uint32(m_forcedReactions.size());
     for (ForcedReactions::const_iterator itr = m_forcedReactions.begin(); itr != m_forcedReactions.end(); ++itr)
     {
@@ -224,7 +224,7 @@ void ReputationMgr::Initialize()
 bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental)
 {
     bool res = false;
-    // if spillover definition exists in DB
+    // if spillover definition exists in DB, override DBC
     if (const RepSpilloverTemplate* repTemplate = sObjectMgr.GetRepSpilloverTemplate(factionEntry->ID))
     {
         for (uint32 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)

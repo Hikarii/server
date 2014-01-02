@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ void WorldSession::HandleJoinChannelOpcode(WorldPacket& recvPacket)
 
     recvPacket >> pass;
     if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
-        if (Channel* chn = cMgr->GetJoinChannel(channelname, channel_id))
+        if (Channel* chn = cMgr->GetJoinChannel(channelname, channel_id)) // channel id seems to be useless but must be checked for LFG
             chn->Join(_player->GetObjectGuid(), pass.c_str());
 }
 
@@ -43,7 +43,6 @@ void WorldSession::HandleLeaveChannelOpcode(WorldPacket& recvPacket)
 {
     DEBUG_LOG("WORLD: Received opcode %s (%u, 0x%X)", recvPacket.GetOpcodeName(), recvPacket.GetOpcode(), recvPacket.GetOpcode());
     // recvPacket.hexlike();
-
     uint32 unk;
     std::string channelname;
     recvPacket >> unk;                                      // channel id?

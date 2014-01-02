@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@
 
 #define DEFAULT_GOSSIP_MESSAGE              0xffffff
 
-extern uint32 GetSkillLevel(Player *player,uint32 skill);
+extern uint32 GetSkillLevel(Player* player, uint32 skill);
 
 // Defined functions to use with player.
 

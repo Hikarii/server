@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,7 +120,6 @@ enum BG_AV_Nodes
     BG_AV_NODES_ERROR                   = 255,
 };
 #define BG_AV_NODES_MAX                 15
-
 
 // for nodeevents we will use event1=node
 // event2 is related to BG_AV_States

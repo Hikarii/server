@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -480,7 +480,12 @@ bool ChatHandler::HandleAccountCreateCommand(char* args)
     std::string account_name = szAcc;
     std::string password = szPassword;
 
-    AccountOpResult result = sAccountMgr.CreateAccount(account_name, password);
+    AccountOpResult result;
+    uint32 expansion = 0;
+    if(ExtractUInt32(&args, expansion))
+        result = sAccountMgr.CreateAccount(account_name, password, expansion);
+    else
+        result = sAccountMgr.CreateAccount(account_name, password);
     switch (result)
     {
         case AOR_OK:

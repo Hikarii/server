@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,7 +125,6 @@ class RARunnable : public ACE_Based::Runnable
             m_Reactor = new ACE_Reactor(imp, 1 /* 1= delete implementation so we don't have to care */);
 
             m_Acceptor = new RASocket::Acceptor;
-
         }
 
         ~RARunnable()

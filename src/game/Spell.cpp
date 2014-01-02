@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2306,7 +2306,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 // TODO - maybe use an (internal) value for the map for neat far teleport handling
 
                 // far-teleport spells are handled in SpellEffect, elsewise report an error about an unexpected map (spells are always locally)
-                if (st->target_mapId != m_caster->GetMapId() && m_spellInfo->Effect[effIndex] != SPELL_EFFECT_TELEPORT_UNITS)
+                if (st->target_mapId != m_caster->GetMapId() && m_spellInfo->Effect[effIndex] != SPELL_EFFECT_TELEPORT_UNITS && m_spellInfo->Effect[effIndex] != SPELL_EFFECT_BIND)
                     sLog.outError("SPELL: wrong map (%u instead %u) target coordinates for spell ID %u", st->target_mapId, m_caster->GetMapId(), m_spellInfo->Id);
             }
             else
@@ -2400,7 +2400,6 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         case TARGET_POINT_AT_SE:
         case TARGET_POINT_AT_SW:
         {
-
             if (!(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION))
             {
                 Unit* currentTarget = m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster;
@@ -2836,7 +2835,7 @@ void Spell::cast(bool skipCheck)
         }
     }
 
-    // different triggered (for caster) and pre-cast (casted before apply effect to each target) cases
+    // different triggered (for caster and main target after main cast) and pre-cast (casted before apply effect to each target) cases
     switch (m_spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -2919,6 +2918,7 @@ void Spell::cast(bool skipCheck)
 
     TakePower();
     TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot
+    TakeAmmo();
 
     SendCastResult(castResult);
     SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
@@ -2929,7 +2929,6 @@ void Spell::cast(bool skipCheck)
     float speed = m_spellInfo->speed == 0.0f && m_triggeredBySpellInfo ? m_triggeredBySpellInfo->speed : m_spellInfo->speed;
     if (speed > 0.0f)
     {
-
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
         TakeCastItem();
@@ -3878,6 +3877,36 @@ void Spell::TakePower()
         m_caster->SetLastManaUse();
 }
 
+void Spell::TakeAmmo()
+{
+    if (m_attackType == RANGED_ATTACK && m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        Item* pItem = ((Player*)m_caster)->GetWeaponForAttack(RANGED_ATTACK, true, false);
+
+        // wands don't have ammo
+        if (!pItem || pItem->GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_WAND)
+            return;
+
+        if (pItem->GetProto()->InventoryType == INVTYPE_THROWN)
+        {
+            if (pItem->GetMaxStackCount() == 1)
+            {
+                // decrease durability for non-stackable throw weapon
+                ((Player*)m_caster)->DurabilityPointLossForEquipSlot(EQUIPMENT_SLOT_RANGED);
+            }
+            else
+            {
+                // decrease items amount for stackable throw weapon
+                uint32 count = 1;
+                ((Player*)m_caster)->DestroyItemCount(pItem, count, true);
+            }
+        }
+        else if (uint32 ammo = ((Player*)m_caster)->GetUInt32Value(PLAYER_AMMO_ID))
+            ((Player*)m_caster)->DestroyItemCount(ammo, 1, true);
+    }
+}
+
+
 void Spell::TakeReagents()
 {
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -4399,7 +4428,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                     m_spellInfo->EffectImplicitTargetB[j] == TARGET_SCRIPT_COORDINATES ||
                     m_spellInfo->EffectImplicitTargetA[j] == TARGET_FOCUS_OR_SCRIPTED_GAMEOBJECT)
             {
-
                 SQLMultiStorage::SQLMSIteratorBounds<SpellTargetEntry> bounds = sSpellScriptTargetStorage.getBounds<SpellTargetEntry>(m_spellInfo->Id);
 
                 if (bounds.first == bounds.second)
@@ -4917,7 +4945,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 if (m_caster->GetPetGuid())                 // let warlock do a replacement summon
                 {
-
                     Pet* pet = ((Player*)m_caster)->GetPet();
 
                     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_WARLOCK)
@@ -6098,13 +6125,13 @@ bool Spell::CheckTargetCreatureType(Unit* target) const
 CurrentSpellTypes Spell::GetCurrentContainer()
 {
     if (IsNextMeleeSwingSpell())
-        return(CURRENT_MELEE_SPELL);
+        return (CURRENT_MELEE_SPELL);
     else if (IsAutoRepeat())
-        return(CURRENT_AUTOREPEAT_SPELL);
+        return (CURRENT_AUTOREPEAT_SPELL);
     else if (IsChanneledSpell(m_spellInfo))
-        return(CURRENT_CHANNELED_SPELL);
+        return (CURRENT_CHANNELED_SPELL);
     else
-        return(CURRENT_GENERIC_SPELL);
+        return (CURRENT_GENERIC_SPELL);
 }
 
 bool Spell::CheckTarget(Unit* target, SpellEffectIndex eff)
@@ -6207,11 +6234,9 @@ bool Spell::IsNeedSendToClient() const
            m_spellInfo->speed > 0.0f || (!m_triggeredByAuraSpell && !m_IsTriggeredSpell);
 }
 
-bool Spell::IsTriggeredSpellWithRedundentData() const
+bool Spell::IsTriggeredSpellWithRedundentCastTime() const
 {
-    return m_triggeredByAuraSpell || m_triggeredBySpellInfo ||
-           // possible not need after above check?
-           m_IsTriggeredSpell && (m_spellInfo->manaCost || m_spellInfo->ManaCostPercentage);
+    return m_IsTriggeredSpell && (m_spellInfo->manaCost || m_spellInfo->ManaCostPercentage);
 }
 
 bool Spell::HaveTargetsForEffect(SpellEffectIndex effect) const
@@ -6655,14 +6680,20 @@ void Spell::GetSpellRangeAndRadius(SpellEffectIndex effIndex, float& radius, uin
                 case 30769:                                 // Pick Red Riding Hood (Karazhan, Big Bad Wolf)
                 case 30835:                                 // Infernal Relay (Karazhan, Prince Malchezaar)
                 case 31347:                                 // Doom (Hyjal Summit, Azgalor)
+                case 32312:                                 // Move 1 (Karazhan, Chess Event)
                 case 33711:                                 // Murmur's Touch (Shadow Labyrinth, Murmur)
+                case 37388:                                 // Move 2 (Karazhan, Chess Event)
                 case 38794:                                 // Murmur's Touch (h) (Shadow Labyrinth, Murmur)
+                case 39338:                                 // Karazhan - Chess, Medivh CHEAT: Hand of Medivh, Target Horde
+                case 39342:                                 // Karazhan - Chess, Medivh CHEAT: Hand of Medivh, Target Alliance
                 case 40834:                                 // Agonizing Flames (BT, Illidan Stormrage)
                 case 41537:                                 // Summon Enslaved Soul (BT, Reliquary of Souls)
                 case 44869:                                 // Spectral Blast (SWP, Kalecgos)
+                case 45391:                                 // Summon Demonic Vapor (SWP, Felmyst)
                 case 45785:                                 // Sinister Reflection Clone (SWP, Kil'jaeden)
                 case 45892:                                 // Sinister Reflection (SWP, Kil'jaeden)
                 case 45976:                                 // Open Portal (SWP, M'uru)
+                case 46372:                                 // Ice Spear Target Picker (Slave Pens, Ahune)
                     unMaxTargets = 1;
                     break;
                 case 10258:                                 // Awaken Vault Warder (Uldaman)
@@ -6671,6 +6702,8 @@ void Spell::GetSpellRangeAndRadius(SpellEffectIndex effIndex, float& radius, uin
                     break;
                 case 30004:                                 // Flame Wreath (Karazhan, Shade of Aran)
                 case 31298:                                 // Sleep (Hyjal Summit, Anetheron)
+                case 39341:                                 // Karazhan - Chess, Medivh CHEAT: Fury of Medivh, Target Horde
+                case 39344:                                 // Karazhan - Chess, Medivh CHEAT: Fury of Medivh, Target Alliance
                 case 39992:                                 // Needle Spine Targeting (BT, Warlord Najentus)
                 case 40869:                                 // Fatal Attraction (BT, Mother Shahraz)
                 case 41303:                                 // Soul Drain (BT, Reliquary of Souls)
@@ -6679,6 +6712,7 @@ void Spell::GetSpellRangeAndRadius(SpellEffectIndex effIndex, float& radius, uin
                     break;
                 case 37676:                                 // Insidious Whisper (SSC, Leotheras the Blind)
                 case 38028:                                 // Watery Grave (SSC, Morogrim Tidewalker)
+                case 46650:                                 // Open Brutallus Back Door (SWP, Felmyst)
                     unMaxTargets = 4;
                     break;
                 case 30843:                                 // Enfeeble (Karazhan, Prince Malchezaar)

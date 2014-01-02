@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ class UpdateMask
 
         void UnsetBit(uint32 index)
         {
-            ((uint8*)mUpdateMask)[ index >> 3 ] &= (0xff ^(1 << (index & 0x7)));
+            ((uint8*)mUpdateMask)[ index >> 3 ] &= (0xff ^ (1 << (index & 0x7)));
         }
 
         bool GetBit(uint32 index) const

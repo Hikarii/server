@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef WIN32
 #pragma warning(disable:4996)
+#endif
 
 struct RawData
 {
@@ -220,7 +222,7 @@ int main(int argc, char** argv)
         if (argv[k][0] != '-')
         {
             path = argv[k];
-            if (path.size() > 0 && (path[path.size()-1] != '/' || path[path.size()-1] != '\\'))
+            if (path.size() > 0 && (path[path.size() - 1] != '/' || path[path.size() - 1] != '\\'))
                 path += '/';
             break;
         }

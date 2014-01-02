@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-# Copyright (C) 2005-2012 MaNGOS project <http://getmangos.com/>
+# This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -38,8 +38,8 @@ then
 else
   ## do some questioning!
   echo
-  echo "Welcome to helper script to extract required dataz for MaNGOS!"
-  echo "Should all dataz (dbc, maps, vmaps and mmaps be extracted? (y/n)"
+  echo "Welcome to helper script to extract required data for MaNGOS!"
+  echo "Should all data (dbc, maps, vmaps and mmaps be extracted? (y/n) - Selecting n will give you the option to pick each step"
   read line
   if [ "$line" = "y" ]
   then
@@ -123,7 +123,7 @@ then
   read line
 fi
 
-echo "`date`: Start extracting dataz for MaNGOS" | tee $LOG_FILE
+echo "`date`: Start extracting data for MaNGOS" | tee $LOG_FILE
 
 ## Handle log messages
 if [ "$USE_AD" = "1" ];
@@ -146,7 +146,7 @@ else
 fi
 echo | tee -a $LOG_FILE
 
-echo "`date`: Start extracting dataz for MaNGOS, DBCs/maps $USE_AD, vmaps $USE_VMAPS, mmaps $USE_MMAPS on $NUM_CPU processes" | tee $DETAIL_LOG_FILE
+echo "`date`: Start extracting data for MaNGOS, DBCs/maps $USE_AD, vmaps $USE_VMAPS, mmaps $USE_MMAPS on $NUM_CPU processes" | tee $DETAIL_LOG_FILE
 echo | tee -a $DETAIL_LOG_FILE
 
 ## Extract dbcs and maps

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -252,7 +252,7 @@ static void clearAcceptTradeMode(Item** myItems, Item** hisItems)
 
 void WorldSession::HandleAcceptTradeOpcode(WorldPacket& recvPacket)
 {
-    recvPacket.read_skip<uint32>();
+    recvPacket.read_skip<uint32>();                         // 7, amount traded slots ?
 
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)

@@ -1,3 +1,21 @@
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 #ifndef AUCTION_HOUSE_BOT_H
 #define AUCTION_HOUSE_BOT_H
 
@@ -123,7 +141,6 @@ class AuctionBotConfig
         bool getConfigBuyerEnabled(AuctionHouseType houseType) const;
         uint32 getConfigItemQualityAmount(AuctionQuality quality) const;
 
-
         uint32      GetItemPerCycleBoost() const { return m_ItemsPerCycleBoost; }
         uint32      GetItemPerCycleNormal() const { return m_ItemsPerCycleNormal; }
         bool        Reload();
@@ -186,7 +203,7 @@ class AuctionHouseBot
         // Followed method is mainly used by level3.cpp for ingame/console command
         void SetItemsRatio(uint32 al, uint32 ho, uint32 ne);
         void SetItemsRatioForHouse(AuctionHouseType house, uint32 val);
-        void SetItemsAmount(uint32(&vals)[MAX_AUCTION_QUALITY]);
+        void SetItemsAmount(uint32(&vals) [MAX_AUCTION_QUALITY]);
         void SetItemsAmountForQuality(AuctionQuality quality, uint32 val);
         bool ReloadAllConfig();
         void Rebuild(bool all);

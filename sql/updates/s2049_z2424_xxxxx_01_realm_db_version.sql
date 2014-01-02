@@ -1,0 +1,1 @@
+ALTER TABLE realmd_db_version CHANGE COLUMN required_s1980_xxxxx_01_realmd_account_friends required_z2426_01_realmd_relations BIT;

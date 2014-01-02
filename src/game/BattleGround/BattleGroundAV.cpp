@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -271,6 +271,9 @@ void BattleGroundAV::Update(uint32 diff)
 
 void BattleGroundAV::StartingEventOpenDoors()
 {
+    UpdateWorldState(BG_AV_SHOW_H_SCORE, WORLD_STATE_ADD);
+    UpdateWorldState(BG_AV_SHOW_A_SCORE, WORLD_STATE_ADD);
+
     OpenDoorEvent(BG_EVENT_DOOR);
 }
 
@@ -374,7 +377,6 @@ void BattleGroundAV::HandleAreaTrigger(Player* source, uint32 trigger)
 
 void BattleGroundAV::UpdatePlayerScore(Player* source, uint32 type, uint32 value)
 {
-
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(source->GetObjectGuid());
     if (itr == m_PlayerScores.end())                        // player not found...
         return;
@@ -788,7 +790,7 @@ void BattleGroundAV::Reset()
     {
         m_Mine_Owner[i] = BG_AV_TEAM_NEUTRAL;
         m_Mine_PrevOwner[i] = m_Mine_Owner[i];
-        m_ActiveEvents[BG_AV_MINE_BOSSES+ i] = BG_AV_TEAM_NEUTRAL;
+        m_ActiveEvents[BG_AV_MINE_BOSSES + i] = BG_AV_TEAM_NEUTRAL;
         m_ActiveEvents[BG_AV_MINE_EVENT + i] = BG_AV_TEAM_NEUTRAL;
         m_Mine_Timer[i] = BG_AV_MINE_TICK_TIMER;
     }
@@ -812,5 +814,4 @@ void BattleGroundAV::Reset()
         InitNode(i, BG_AV_TEAM_HORDE, true);
 
     InitNode(BG_AV_NODES_SNOWFALL_GRAVE, BG_AV_TEAM_NEUTRAL, false);                            // give snowfall neutral owner
-
 }

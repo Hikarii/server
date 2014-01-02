@@ -1,5 +1,4 @@
-#
-# Copyright (C) 2005-2012 MaNGOS project <http://getmangos.com/>
+# This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,7 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
 
 set(EXECUTABLE_NAME realmd)
 

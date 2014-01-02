@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2012 MaNGOS project <http://getmangos.com/>
+# This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -8,7 +8,8 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8)
+
 project (MANGOS_VMAP_ASSEMB_IO)
 
 # uncomment next line to disable debug mode
@@ -86,4 +87,3 @@ target_link_libraries(vmap_assembler vmap)
 
 # add_executable(vmap_test coordinate_test.cpp)
 # target_link_libraries(vmap_test vmap)
-

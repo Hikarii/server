@@ -1,3 +1,21 @@
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 #include "AuctionHouseBot.h"
 #include "ProgressBar.h"
 #include "Log.h"
@@ -73,7 +91,6 @@ struct SellerItemClassInfo
     uint32 AmountOfItems;
     uint32 MissItems;
     uint32 Quantity;
-
 };
 
 struct SellerItemInfo
@@ -191,7 +208,7 @@ class AuctionBotSeller : public AuctionBotAgent
         void addNewAuctions(AHB_Seller_Config& config);
         void SetItemsRatio(uint32 al, uint32 ho, uint32 ne);
         void SetItemsRatioForHouse(AuctionHouseType house, uint32 val);
-        void SetItemsAmount(uint32(&vals)[MAX_AUCTION_QUALITY]);
+        void SetItemsAmount(uint32(&vals) [MAX_AUCTION_QUALITY]);
         void SetItemsAmountForQuality(AuctionQuality quality, uint32 val);
         void LoadConfig();
 
@@ -436,8 +453,8 @@ uint32 AuctionBotConfig::getConfigItemQualityAmount(AuctionQuality quality) cons
         case AUCTION_QUALITY_WHITE: return getConfig(CONFIG_UINT32_AHBOT_ITEM_WHITE_AMOUNT);
         case AUCTION_QUALITY_GREEN: return getConfig(CONFIG_UINT32_AHBOT_ITEM_GREEN_AMOUNT);
         case AUCTION_QUALITY_BLUE:  return getConfig(CONFIG_UINT32_AHBOT_ITEM_BLUE_AMOUNT);
-        case AUCTION_QUALITY_PURPLE:return getConfig(CONFIG_UINT32_AHBOT_ITEM_PURPLE_AMOUNT);
-        case AUCTION_QUALITY_ORANGE:return getConfig(CONFIG_UINT32_AHBOT_ITEM_ORANGE_AMOUNT);
+        case AUCTION_QUALITY_PURPLE: return getConfig(CONFIG_UINT32_AHBOT_ITEM_PURPLE_AMOUNT);
+        case AUCTION_QUALITY_ORANGE: return getConfig(CONFIG_UINT32_AHBOT_ITEM_ORANGE_AMOUNT);
         default:                    return getConfig(CONFIG_UINT32_AHBOT_ITEM_YELLOW_AMOUNT);
     }
 }
@@ -542,7 +559,6 @@ uint32 AuctionBotBuyer::GetBuyableEntry(AHB_Buyer_Config& config)
 
                 if (!Aentry->owner)
                 {
-
                     if ((Aentry->bid != 0) && Aentry->bidder) // Add bided by player
                     {
                         config.CheckedEntry[Aentry->Id].LastExist = Now;
@@ -603,7 +619,6 @@ bool AuctionBotBuyer::IsBuyableEntry(uint32 buyoutPrice, double InGame_BuyPrice,
             Chance = MaxChance;
         else
         {
-
             if ((buyoutPrice > 0) && (MaxBuyablePrice > 0))
             {
                 ratio = buyoutPrice / MaxBuyablePrice;
@@ -619,7 +634,6 @@ bool AuctionBotBuyer::IsBuyableEntry(uint32 buyoutPrice, double InGame_BuyPrice,
             Chance = MaxChance / 5;
         else
         {
-
             if ((buyoutPrice > 0) && (MaxBuyablePrice > 0))
             {
                 ratio = buyoutPrice / MaxBuyablePrice;
@@ -883,7 +897,6 @@ bool AuctionBotSeller::Initialize()
         std::string temp;
         while (getline(excludeStream, temp, ','))
             excludeItems.push_back(atoi(temp.c_str()));
-
     }
     sLog.outString("Forced Inclusion " SIZEFMTD " items", includeItems.size());
     sLog.outString("Forced Exclusion " SIZEFMTD " items", excludeItems.size());
@@ -898,7 +911,6 @@ bool AuctionBotSeller::Initialize()
             bar.step();
             Field* fields = result->Fetch();
             npcItems.push_back(fields[0].GetUInt32());
-
         }
         while (result->NextRow());
         delete result;
@@ -1372,7 +1384,6 @@ void AuctionBotSeller::LoadSellerValues(AHB_Seller_Config& config)
     DEBUG_FILTER_LOG(LOG_FILTER_AHBOT_SELLER, "AHBot: PurpleItems = %u", config.GetItemsAmountPerQuality(AUCTION_QUALITY_PURPLE));
     DEBUG_FILTER_LOG(LOG_FILTER_AHBOT_SELLER, "AHBot: OrangeItems = %u", config.GetItemsAmountPerQuality(AUCTION_QUALITY_ORANGE));
     DEBUG_FILTER_LOG(LOG_FILTER_AHBOT_SELLER, "AHBot: YellowItems = %u", config.GetItemsAmountPerQuality(AUCTION_QUALITY_YELLOW));
-
 }
 
 // Set static of items on one AH faction.
@@ -1486,7 +1497,7 @@ void AuctionBotSeller::SetItemsRatioForHouse(AuctionHouseType house, uint32 val)
     LoadItemsQuantity(m_HouseConfig[house]);
 }
 
-void AuctionBotSeller::SetItemsAmount(uint32(&vals)[MAX_AUCTION_QUALITY])
+void AuctionBotSeller::SetItemsAmount(uint32(&vals) [MAX_AUCTION_QUALITY])
 {
     sAuctionBotConfig.setConfig(CONFIG_UINT32_AHBOT_ITEM_GREY_AMOUNT, vals[AUCTION_QUALITY_GREY]);
     sAuctionBotConfig.setConfig(CONFIG_UINT32_AHBOT_ITEM_WHITE_AMOUNT, vals[AUCTION_QUALITY_WHITE]);
@@ -1508,8 +1519,8 @@ void AuctionBotSeller::SetItemsAmountForQuality(AuctionQuality quality, uint32 v
         case AUCTION_QUALITY_WHITE: sAuctionBotConfig.setConfig(CONFIG_UINT32_AHBOT_ITEM_WHITE_AMOUNT, val); break;
         case AUCTION_QUALITY_GREEN: sAuctionBotConfig.setConfig(CONFIG_UINT32_AHBOT_ITEM_GREEN_AMOUNT, val); break;
         case AUCTION_QUALITY_BLUE:  sAuctionBotConfig.setConfig(CONFIG_UINT32_AHBOT_ITEM_BLUE_AMOUNT, val); break;
-        case AUCTION_QUALITY_PURPLE:sAuctionBotConfig.setConfig(CONFIG_UINT32_AHBOT_ITEM_PURPLE_AMOUNT, val); break;
-        case AUCTION_QUALITY_ORANGE:sAuctionBotConfig.setConfig(CONFIG_UINT32_AHBOT_ITEM_ORANGE_AMOUNT, val); break;
+        case AUCTION_QUALITY_PURPLE: sAuctionBotConfig.setConfig(CONFIG_UINT32_AHBOT_ITEM_PURPLE_AMOUNT, val); break;
+        case AUCTION_QUALITY_ORANGE: sAuctionBotConfig.setConfig(CONFIG_UINT32_AHBOT_ITEM_ORANGE_AMOUNT, val); break;
         default:                    sAuctionBotConfig.setConfig(CONFIG_UINT32_AHBOT_ITEM_YELLOW_AMOUNT, val); break;
     }
 
@@ -1572,7 +1583,6 @@ void AuctionBotSeller::addNewAuctions(AHB_Seller_Config& config)
         }
 
         uint32 stackCount = urand(1, prototype->GetMaxStackSize());
-
 
         Item* item = Item::CreateItem(itemID, stackCount);
         if (!item)
@@ -1662,7 +1672,7 @@ void AuctionHouseBot::SetItemsRatioForHouse(AuctionHouseType house, uint32 val)
         seller->SetItemsRatioForHouse(house, val);
 }
 
-void AuctionHouseBot::SetItemsAmount(uint32(&vals)[MAX_AUCTION_QUALITY])
+void AuctionHouseBot::SetItemsAmount(uint32(&vals) [MAX_AUCTION_QUALITY])
 {
     if (AuctionBotSeller* seller = dynamic_cast<AuctionBotSeller*>(m_Seller))
         seller->SetItemsAmount(vals);

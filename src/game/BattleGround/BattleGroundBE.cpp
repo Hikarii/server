@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,14 +125,12 @@ void BattleGroundBE::FillInitialWorldStates(WorldPacket& data, uint32& count)
 
 void BattleGroundBE::UpdatePlayerScore(Player* source, uint32 type, uint32 value)
 {
-
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(source->GetObjectGuid());
     if (itr == m_PlayerScores.end())                        // player not found...
         return;
 
     // there is nothing special in this score
     BattleGround::UpdatePlayerScore(source, type, value);
-
 }
 
 /*

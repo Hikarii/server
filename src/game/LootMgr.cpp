@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+/**
+ * This code is part of MaNGOS. Contributor & Copyright details are in AUTHORS/THANKS.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -162,7 +162,6 @@ void LootStore::LoadLootTable()
             // Adds current row to the template
             tab->second->AddEntry(storeitem);
             ++count;
-
         }
         while (result->NextRow());
 
@@ -298,7 +297,6 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
             sLog.outErrorDb("Table '%s' entry %d item %d: max count (%u) less that min count (%i) - skipped", store.GetName(), entry, itemid, uint32(maxcount), mincountOrRef);
             return false;
         }
-
     }
     else                                                    // mincountOrRef < 0
     {
@@ -861,7 +859,7 @@ LootStoreItem const* LootTemplate::LootGroup::Roll() const
         }
     }
     if (!EqualChanced.empty())                              // If nothing selected yet - an item is taken from equal-chanced part
-        return &EqualChanced[irand(0, EqualChanced.size()-1)];
+        return &EqualChanced[irand(0, EqualChanced.size() - 1)];
 
     return NULL;                                            // Empty drop from the group
 }
@@ -971,7 +969,7 @@ void LootTemplate::AddEntry(LootStoreItem& item)
     {
         if (item.group >= Groups.size())
             Groups.resize(item.group);                      // Adds new group the the loot template if needed
-        Groups[item.group-1].AddEntry(item);                // Adds new entry to the group
+        Groups[item.group - 1].AddEntry(item);              // Adds new entry to the group
     }
     else                                                    // Non-grouped entries and references are stored together
         Entries.push_back(item);
@@ -985,7 +983,7 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint8 
         if (groupId > Groups.size())
             return;                                         // Error message already printed at loading stage
 
-        Groups[groupId-1].Process(loot);
+        Groups[groupId - 1].Process(loot);
         return;
     }
 
@@ -1025,7 +1023,7 @@ bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) con
     {
         if (groupId > Groups.size())
             return false;                                   // Error message [should be] already printed at loading stage
-        return Groups[groupId-1].HasQuestDrop();
+        return Groups[groupId - 1].HasQuestDrop();
     }
 
     for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i)
@@ -1057,7 +1055,7 @@ bool LootTemplate::HasQuestDropForPlayer(LootTemplateMap const& store, Player co
     {
         if (groupId > Groups.size())
             return false;                                   // Error message already printed at loading stage
-        return Groups[groupId-1].HasQuestDropForPlayer(player);
+        return Groups[groupId - 1].HasQuestDropForPlayer(player);
     }
 
     // Checking non-grouped entries
