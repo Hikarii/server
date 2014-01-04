@@ -6710,22 +6710,5 @@ bool ChatHandler::HandleAccountFriendDeleteCommand(char* args)
 // List friends for account
 bool ChatHandler::HandleAccountFriendListCommand(char* args)
 {
-	///- Get the command line arguments
-	std::string account_name;
-	uint32 AccountId = ExtractAccountId(&args, &account_name);
-
-	if (!AccountId)
-		return false;
-
-	std::vector<uint32> result = sAccountMgr.GetRAFAccounts(AccountId, true);
-
-	if (!result.empty())
-	{	
-		std::stringstream convert;
-		std::copy(result.begin(), result.end(), std::ostream_iterator<int>(convert, "\n"));
-	
-		PSendSysMessage(convert.str().c_str());
-	}
-
-	return true;
+	return false;
 }
